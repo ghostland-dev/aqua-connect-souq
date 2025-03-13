@@ -8,7 +8,7 @@ import Footer from '@/components/layout/Footer';
 import { Language } from '@/lib/i18n';
 
 const Index = () => {
-  const [language, setLanguage] = useState<Language>('en');
+  const [language, setLanguage] = useState<Language>('ar');
 
   return (
     <div className="min-h-screen bg-white">
