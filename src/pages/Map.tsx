@@ -6,6 +6,8 @@ import { Language } from '@/lib/i18n';
 import { getTranslation } from '@/lib/i18n';
 import { motion } from 'framer-motion';
 import WaterMap from '@/components/map/WaterMap';
+import WaterDataPanel from '@/components/map/WaterDataPanel';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const Map = () => {
   const [language, setLanguage] = useState<Language>('ar');
@@ -39,12 +41,21 @@ const Map = () => {
           </div>
         </section>
 
-        {/* Map Component */}
+        {/* Map and Data Tabs */}
         <section className="py-8">
           <div className="container mx-auto px-4">
-            <div className="bg-white rounded-lg shadow-md overflow-hidden">
-              <WaterMap />
-            </div>
+            <Tabs defaultValue="map" className="w-full">
+              <TabsList className="grid w-full max-w-md mx-auto grid-cols-2 mb-8">
+                <TabsTrigger value="map">{getTranslation(language, 'waterMap')}</TabsTrigger>
+                <TabsTrigger value="data">{getTranslation(language, 'waterData')}</TabsTrigger>
+              </TabsList>
+              <TabsContent value="map" className="bg-white rounded-lg shadow-md overflow-hidden">
+                <WaterMap language={language} />
+              </TabsContent>
+              <TabsContent value="data">
+                <WaterDataPanel language={language} />
+              </TabsContent>
+            </Tabs>
           </div>
         </section>
       </main>

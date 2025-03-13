@@ -41,6 +41,16 @@ const translations: Translations = {
     // Map Section
     mapTitle: "خريطة الوصول إلى المياه",
     mapDesc: "استكشف نقاط المياه في منطقتك",
+    waterMap: "خريطة المياه",
+    waterData: "بيانات المياه",
+    
+    // Water Data Panel
+    analytics: "التحليلات",
+    waterPoints: "نقاط المياه",
+    waterQuality: "جودة المياه",
+    filter: "تصفية",
+    search: "بحث",
+    download: "تنزيل",
     
     // Education Section
     educationResourcesTitle: "موارد التعليم والتوعية",
@@ -90,6 +100,16 @@ const translations: Translations = {
     // Map Section
     mapTitle: "Carte d'accès à l'eau",
     mapDesc: "Explorez les points d'eau dans votre région",
+    waterMap: "Carte de l'eau",
+    waterData: "Données sur l'eau",
+    
+    // Water Data Panel
+    analytics: "Analyses",
+    waterPoints: "Points d'eau",
+    waterQuality: "Qualité de l'eau",
+    filter: "Filtrer",
+    search: "Rechercher",
+    download: "Télécharger",
     
     // Education Section
     educationResourcesTitle: "Ressources éducatives et de sensibilisation",
@@ -139,6 +159,16 @@ const translations: Translations = {
     // Map Section
     mapTitle: "Water Access Map",
     mapDesc: "Explore water points in your area",
+    waterMap: "Water Map",
+    waterData: "Water Data",
+    
+    // Water Data Panel
+    analytics: "Analytics",
+    waterPoints: "Water Points",
+    waterQuality: "Water Quality",
+    filter: "Filter",
+    search: "Search",
+    download: "Download",
     
     // Education Section
     educationResourcesTitle: "Education & Awareness Resources",
