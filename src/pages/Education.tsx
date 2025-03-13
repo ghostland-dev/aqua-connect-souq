@@ -81,20 +81,43 @@ const Education = () => {
       <Navbar language={language} onLanguageChange={setLanguage} />
       
       <main className="pt-20 pb-16">
-        {/* Hero Section */}
-        <section className="bg-gradient-to-r from-morocco-blue to-morocco-blue-dark text-white py-16">
-          <div className="container mx-auto px-4">
+        {/* Hero Section with Moroccan Pattern Background */}
+        <section className="relative py-16 overflow-hidden">
+          {/* Moroccan Pattern Background */}
+          <div 
+            className="absolute inset-0 z-0"
+            style={{
+              backgroundImage: "url('data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%231A96B7' fill-opacity='0.15'%3E%3Cpath d='M30 30h30v30H30z'/%3E%3Cpath d='M0 30h30v30H0z'/%3E%3Cpath d='M30 0h30v30H30z'/%3E%3Cpath d='M0 0h30v30H0z'/%3E%3C/g%3E%3Cg fill='%23C75F35' fill-opacity='0.1'%3E%3Cpath d='M15 15h30v30H15z'/%3E%3Cpath d='M0 15h15v30H0z'/%3E%3Cpath d='M45 15h15v30H45z'/%3E%3Cpath d='M15 0h30v15H15z'/%3E%3Cpath d='M15 45h30v15H15z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E')",
+              backgroundSize: "60px 60px"
+            }}
+          ></div>
+          
+          {/* Berber-inspired decorative elements */}
+          <div className="absolute top-0 left-0 w-full h-6 bg-morocco-terracotta/30"></div>
+          <div className="absolute top-6 left-0 w-full h-2 bg-morocco-olive/30"></div>
+          <div className="absolute bottom-0 left-0 w-full h-6 bg-morocco-terracotta/30"></div>
+          <div className="absolute bottom-6 left-0 w-full h-2 bg-morocco-olive/30"></div>
+          
+          <div className="container mx-auto px-4 relative z-10">
             <div className="max-w-4xl mx-auto text-center">
+              <div className="flex justify-center mb-6">
+                <div className="inline-block relative">
+                  <div className="absolute -top-5 left-1/2 transform -translate-x-1/2 w-20 h-2 bg-morocco-terracotta"></div>
+                  <div className="absolute -bottom-5 left-1/2 transform -translate-x-1/2 w-20 h-2 bg-morocco-terracotta"></div>
+                </div>
+              </div>
+              
               <motion.h1 
-                className="text-3xl md:text-5xl font-bold mb-6"
+                className="text-3xl md:text-5xl font-bold mb-6 text-morocco-terracotta"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5 }}
               >
                 {getTranslation(language, 'educationResourcesTitle')}
               </motion.h1>
+              
               <motion.p 
-                className="text-lg md:text-xl opacity-90"
+                className="text-lg md:text-xl text-gray-700"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: 0.2 }}
@@ -103,16 +126,28 @@ const Education = () => {
                  language === 'fr' ? 'Ressources éducatives et de sensibilisation sur les questions d\'eau pour les communautés locales' :
                  'Educational and awareness resources on water issues for local communities'}
               </motion.p>
+              
+              <div className="flex justify-center mt-8">
+                <div className="w-24 h-1 bg-morocco-blue rounded-full"></div>
+              </div>
             </div>
           </div>
         </section>
 
         {/* Resources Section */}
-        <section className="py-16 bg-gray-50">
-          <div className="container mx-auto px-4">
+        <section className="py-16 relative">
+          {/* Subtle background patterns */}
+          <div 
+            className="absolute inset-0 z-0 opacity-5"
+            style={{
+              backgroundImage: "url('data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM12 86c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm28-65c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm23-11c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-6 60c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm29 22c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zM32 63c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm57-13c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-9-21c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM60 91c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM35 41c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM12 60c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2z' fill='%23C75F35' fill-opacity='1' fill-rule='evenodd'/%3E%3C/svg%3E')",
+            }}
+          ></div>
+          
+          <div className="container mx-auto px-4 relative z-10">
             <Tabs defaultValue="all" className="w-full max-w-5xl mx-auto">
               <div className="flex justify-center mb-10">
-                <TabsList className="bg-white shadow-sm">
+                <TabsList className="bg-white shadow-md border border-morocco-sand rounded-lg p-1">
                   {categories.map((category) => {
                     const CategoryIcon = category.icon;
                     return (
@@ -120,7 +155,7 @@ const Education = () => {
                         key={category.id} 
                         value={category.id}
                         onClick={() => setActiveCategory(category.id)}
-                        className="px-5 py-2"
+                        className="px-5 py-3 data-[state=active]:bg-morocco-sand data-[state=active]:text-morocco-terracotta"
                       >
                         <CategoryIcon className="mr-2 h-4 w-4" />
                         <span className={`${language === 'ar' ? 'mr-2' : 'ml-2'}`}>
@@ -145,7 +180,7 @@ const Education = () => {
               </div>
 
               <TabsContent value="all" className="mt-0">
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                   {filteredResources.map((resource) => (
                     <ResourceCard
                       key={resource.id}
@@ -170,7 +205,7 @@ const Education = () => {
 
               {categories.filter(c => c.id !== 'all').map((category) => (
                 <TabsContent key={category.id} value={category.id} className="mt-0">
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                     {filteredResources.map((resource) => (
                       <ResourceCard
                         key={resource.id}
