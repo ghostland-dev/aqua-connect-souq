@@ -14,15 +14,19 @@ export const useCounterAnimation = (
   const counter = useSpring(0, { 
     stiffness: 50, 
     damping: 30,
-    duration: duration * 1000,
-    delay: delay * 1000
+    duration: duration * 1000
   });
 
   useEffect(() => {
     if (isInView) {
-      counter.set(value);
+      // Use setTimeout for the delay instead of the delay property in useSpring
+      const timer = setTimeout(() => {
+        counter.set(value);
+      }, delay * 1000);
+      
+      return () => clearTimeout(timer);
     }
-  }, [isInView, counter, value]);
+  }, [isInView, counter, value, delay]);
 
   const displayValue = useTransform(counter, (val) => {
     return formatFn ? formatFn(val) : Math.round(val).toString();
