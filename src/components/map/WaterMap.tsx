@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { getTranslation, Language } from '@/lib/i18n';
 import { Button } from '@/components/ui/button';
@@ -39,6 +39,12 @@ const WaterMap: React.FC<WaterMapProps> = ({ language }) => {
   const [activeLayer, setActiveLayer] = useState<string>('all');
   const [filterStatus, setFilterStatus] = useState<string>('all');
   const [selectedPoint, setSelectedPoint] = useState<number | null>(null);
+  const [mapLoaded, setMapLoaded] = useState(false);
+  
+  // Ensure client-side rendering only
+  useEffect(() => {
+    setMapLoaded(true);
+  }, []);
   
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -165,68 +171,70 @@ const WaterMap: React.FC<WaterMapProps> = ({ language }) => {
               {/* Top decorative border - Moroccan pattern */}
               <div className="absolute top-0 left-0 right-0 h-2 bg-gradient-to-r from-morocco-terracotta via-morocco-sand to-morocco-blue z-10"></div>
               
-              <MapContainer 
-                center={[31.3, -7.6]} 
-                zoom={9} 
-                style={mapStyle} 
-                className="z-0"
-              >
-                <TileLayer
-                  attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-                  url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                />
-                
-                {/* Water points markers */}
-                {filteredPoints.map((point) => (
-                  <CircleMarker 
-                    key={point.id}
-                    center={[point.lat, point.lng]}
-                    radius={8}
-                    pathOptions={{
-                      fillColor: getMarkerColor(point.type, point.status),
-                      color: '#fff',
-                      weight: 2,
-                      opacity: 1,
-                      fillOpacity: 0.8
-                    }}
-                    eventHandlers={{
-                      click: () => {
-                        setSelectedPoint(selectedPoint === point.id ? null : point.id);
-                      }
-                    }}
-                  >
-                    <Popup className="leaflet-popup-morocco">
-                      <div className="p-1">
-                        <h3 className="font-bold text-morocco-blue text-lg border-b border-morocco-sand pb-1 mb-2">{point.name}</h3>
-                        <div className="flex justify-between mb-1">
-                          <span className="font-medium">النوع:</span> 
-                          <span>{point.type === 'well' ? 'بئر' : point.type === 'tap' ? 'صنبور' : 'خزان'}</span>
+              {mapLoaded && (
+                <MapContainer 
+                  center={[31.3, -7.6]} 
+                  zoom={9} 
+                  style={mapStyle} 
+                  className="z-0"
+                >
+                  <TileLayer
+                    attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                    url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                  />
+                  
+                  {/* Water points markers */}
+                  {filteredPoints.map((point) => (
+                    <CircleMarker 
+                      key={point.id}
+                      center={[point.lat, point.lng]}
+                      radius={8}
+                      pathOptions={{
+                        fillColor: getMarkerColor(point.type, point.status),
+                        color: '#fff',
+                        weight: 2,
+                        opacity: 1,
+                        fillOpacity: 0.8
+                      }}
+                      eventHandlers={{
+                        click: () => {
+                          setSelectedPoint(selectedPoint === point.id ? null : point.id);
+                        }
+                      }}
+                    >
+                      <Popup className="leaflet-popup-morocco">
+                        <div className="p-1">
+                          <h3 className="font-bold text-morocco-blue text-lg border-b border-morocco-sand pb-1 mb-2">{point.name}</h3>
+                          <div className="flex justify-between mb-1">
+                            <span className="font-medium">النوع:</span> 
+                            <span>{point.type === 'well' ? 'بئر' : point.type === 'tap' ? 'صنبور' : 'خزان'}</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="font-medium">الحالة:</span> 
+                            <span className={
+                              point.status === 'active' ? 'text-green-600' : 
+                              point.status === 'maintenance' ? 'text-yellow-600' : 
+                              'text-red-600'
+                            }>
+                              {point.status === 'active' ? 'نشط' : 
+                               point.status === 'maintenance' ? 'صيانة' : 
+                               'غير نشط'}
+                            </span>
+                          </div>
+                          <Button 
+                            variant="outline" 
+                            size="sm" 
+                            className="w-full mt-2 flex items-center justify-center gap-1 text-xs h-7"
+                          >
+                            <Info size={12} />
+                            <span>تفاصيل أكثر</span>
+                          </Button>
                         </div>
-                        <div className="flex justify-between">
-                          <span className="font-medium">الحالة:</span> 
-                          <span className={
-                            point.status === 'active' ? 'text-green-600' : 
-                            point.status === 'maintenance' ? 'text-yellow-600' : 
-                            'text-red-600'
-                          }>
-                            {point.status === 'active' ? 'نشط' : 
-                             point.status === 'maintenance' ? 'صيانة' : 
-                             'غير نشط'}
-                          </span>
-                        </div>
-                        <Button 
-                          variant="outline" 
-                          size="sm" 
-                          className="w-full mt-2 flex items-center justify-center gap-1 text-xs h-7"
-                        >
-                          <Info size={12} />
-                          <span>تفاصيل أكثر</span>
-                        </Button>
-                      </div>
-                    </Popup>
-                  </CircleMarker>
-                ))}
-              </MapContainer>
+                      </Popup>
+                    </CircleMarker>
+                  ))}
+                </MapContainer>
+              )}
               
               {/* Bottom decorative border */}
               <div className="absolute bottom-0 left-0 right-0 h-2 bg-gradient-to-r from-morocco-blue via-morocco-sand to-morocco-terracotta"></div>
