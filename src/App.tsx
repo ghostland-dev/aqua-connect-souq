@@ -11,6 +11,8 @@ import WaterConservationGuide from "./pages/WaterConservationGuide";
 import Map from "./pages/Map";
 import About from "./pages/About";
 import Contact from "./pages/Contact";
+import Dashboard from "./pages/Dashboard";
+import Privacy from "./pages/Privacy";
 
 const queryClient = new QueryClient();
 
@@ -27,6 +29,8 @@ const App = () => (
           <Route path="/map" element={<Map />} />
           <Route path="/about" element={<About />} />
           <Route path="/contact" element={<Contact />} />
+          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/privacy" element={<Privacy />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
