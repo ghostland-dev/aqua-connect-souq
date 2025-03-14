@@ -10,14 +10,35 @@ import {
   DropdownMenuTrigger 
 } from "@/components/ui/dropdown-menu";
 import { Layers, Filter, MapPin, Info } from 'lucide-react';
+import { MapContainer, TileLayer, Marker, Popup, CircleMarker } from 'react-leaflet';
+import 'leaflet/dist/leaflet.css';
+import L from 'leaflet';
+
+// Fix for Leaflet default icon
+delete (L.Icon.Default.prototype as any)._getIconUrl;
+L.Icon.Default.mergeOptions({
+  iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png',
+  iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png',
+  shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
+});
 
 interface WaterMapProps {
   language: Language;
 }
 
+interface WaterPoint {
+  id: number;
+  lat: number;
+  lng: number;
+  type: 'well' | 'tap' | 'reservoir';
+  status: 'active' | 'inactive' | 'maintenance';
+  name: string;
+}
+
 const WaterMap: React.FC<WaterMapProps> = ({ language }) => {
   const [activeLayer, setActiveLayer] = useState<string>('all');
   const [filterStatus, setFilterStatus] = useState<string>('all');
+  const [selectedPoint, setSelectedPoint] = useState<number | null>(null);
   
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -40,16 +61,16 @@ const WaterMap: React.FC<WaterMapProps> = ({ language }) => {
     }
   };
 
-  // Données des points d'eau (exemples)
-  const waterPoints = [
-    { id: 1, x: "30%", y: "40%", type: "well", status: "active", name: "بئر القرية المركزي" },
-    { id: 2, x: "45%", y: "30%", type: "tap", status: "active", name: "صنبور مدرسة تافراوت" },
-    { id: 3, x: "60%", y: "50%", type: "well", status: "inactive", name: "بئر الوادي القديم" },
-    { id: 4, x: "25%", y: "65%", type: "tap", status: "active", name: "نقطة مياه المستشفى" },
-    { id: 5, x: "70%", y: "35%", type: "well", status: "active", name: "بئر الجبل الشرقي" },
-    { id: 6, x: "55%", y: "60%", type: "reservoir", status: "active", name: "خزان المياه الرئيسي" },
-    { id: 7, x: "40%", y: "50%", type: "tap", status: "maintenance", name: "صنبور الساحة العامة" },
-    { id: 8, x: "75%", y: "45%", type: "reservoir", status: "maintenance", name: "خزان المياه الاحتياطي" },
+  // Données des points d'eau avec coordonnées géographiques pour le Maroc
+  const waterPoints: WaterPoint[] = [
+    { id: 1, lat: 31.63, lng: -8.0, type: "well", status: "active", name: "بئر القرية المركزي" },
+    { id: 2, lat: 31.2, lng: -7.9, type: "tap", status: "active", name: "صنبور مدرسة تافراوت" },
+    { id: 3, lat: 30.9, lng: -7.8, type: "well", status: "inactive", name: "بئر الوادي القديم" },
+    { id: 4, lat: 31.3, lng: -7.7, type: "tap", status: "active", name: "نقطة مياه المستشفى" },
+    { id: 5, lat: 31.5, lng: -7.5, type: "well", status: "active", name: "بئر الجبل الشرقي" },
+    { id: 6, lat: 31.7, lng: -7.6, type: "reservoir", status: "active", name: "خزان المياه الرئيسي" },
+    { id: 7, lat: 31.4, lng: -7.4, type: "tap", status: "maintenance", name: "صنبور الساحة العامة" },
+    { id: 8, lat: 31.1, lng: -7.3, type: "reservoir", status: "maintenance", name: "خزان المياه الاحتياطي" },
   ];
 
   // Fonction de filtrage des points d'eau
@@ -63,8 +84,27 @@ const WaterMap: React.FC<WaterMapProps> = ({ language }) => {
 
   const filteredPoints = getFilteredPoints();
   
-  // Information temporaire sur le point sélectionné
-  const [selectedPoint, setSelectedPoint] = useState<number | null>(null);
+  // Custom marker colors based on type and status
+  const getMarkerColor = (type: string, status: string) => {
+    if (status === 'inactive') return "#777";
+    if (status === 'maintenance') return "#F59E0B";
+    
+    switch (type) {
+      case 'well': return "#1A96B7";
+      case 'tap': return "#10B981";
+      case 'reservoir': return "#6366F1";
+      default: return "#1A96B7";
+    }
+  };
+
+  // Custom Moroccan-themed map style
+  const mapStyle = {
+    height: "500px",
+    width: "100%",
+    borderRadius: "0.5rem",
+    border: "2px solid #E9DAC4",
+    boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1)"
+  };
   
   return (
     <section className="py-8">
@@ -120,115 +160,90 @@ const WaterMap: React.FC<WaterMapProps> = ({ language }) => {
             variants={itemVariants}
             className="relative"
           >
-            <div className="aspect-[16/9] bg-morocco-sand/20 rounded-2xl overflow-hidden shadow-md relative mb-4">
-              {/* Map Background - In a real implementation, this would be a real map */}
-              <div 
-                className="absolute inset-0"
-                style={{
-                  backgroundImage: "url('data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM12 86c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm28-65c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm23-11c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-6 60c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm29 22c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zM32 63c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm57-13c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-9-21c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM60 91c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM35 41c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM12 60c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2z' fill='%231A96B7' fill-opacity='0.1' fill-rule='evenodd'/%3E%3C/svg%3E')",
-                  backgroundSize: "cover"
-                }}
-              ></div>
+            {/* Leaflet Map with Moroccan styling */}
+            <div className="relative bg-morocco-sand/10 rounded-2xl overflow-hidden shadow-md mb-4">
+              {/* Top decorative border - Moroccan pattern */}
+              <div className="absolute top-0 left-0 right-0 h-2 bg-gradient-to-r from-morocco-terracotta via-morocco-sand to-morocco-blue z-10"></div>
               
-              {/* Map Overlay with Path and Rivers */}
-              <svg className="absolute inset-0 w-full h-full" xmlns="http://www.w3.org/2000/svg">
-                <path 
-                  d="M20,80 Q40,70 60,85 Q80,70 100,90 Q120,80 140,95 Q160,85 180,90" 
-                  fill="none" 
-                  stroke="#1A96B7" 
-                  strokeWidth="3" 
-                  strokeDasharray="1 3"
-                  strokeLinecap="round"
+              <MapContainer 
+                center={[31.3, -7.6]} 
+                zoom={9} 
+                style={mapStyle} 
+                className="z-0"
+              >
+                <TileLayer
+                  attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                  url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                 />
-                <path 
-                  d="M30,30 Q50,40 70,25 Q90,35 110,20 Q130,30 150,25 Q170,35 190,30" 
-                  fill="none" 
-                  stroke="#1A96B7" 
-                  strokeWidth="3"
-                  strokeOpacity="0.6"
-                  strokeLinecap="round"
-                />
-              </svg>
+                
+                {/* Water points markers */}
+                {filteredPoints.map((point) => (
+                  <CircleMarker 
+                    key={point.id}
+                    center={[point.lat, point.lng]}
+                    radius={8}
+                    pathOptions={{
+                      fillColor: getMarkerColor(point.type, point.status),
+                      color: '#fff',
+                      weight: 2,
+                      opacity: 1,
+                      fillOpacity: 0.8
+                    }}
+                    eventHandlers={{
+                      click: () => {
+                        setSelectedPoint(selectedPoint === point.id ? null : point.id);
+                      }
+                    }}
+                  >
+                    <Popup className="leaflet-popup-morocco">
+                      <div className="p-1">
+                        <h3 className="font-bold text-morocco-blue text-lg border-b border-morocco-sand pb-1 mb-2">{point.name}</h3>
+                        <div className="flex justify-between mb-1">
+                          <span className="font-medium">النوع:</span> 
+                          <span>{point.type === 'well' ? 'بئر' : point.type === 'tap' ? 'صنبور' : 'خزان'}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="font-medium">الحالة:</span> 
+                          <span className={
+                            point.status === 'active' ? 'text-green-600' : 
+                            point.status === 'maintenance' ? 'text-yellow-600' : 
+                            'text-red-600'
+                          }>
+                            {point.status === 'active' ? 'نشط' : 
+                             point.status === 'maintenance' ? 'صيانة' : 
+                             'غير نشط'}
+                          </span>
+                        </div>
+                        <Button 
+                          variant="outline" 
+                          size="sm" 
+                          className="w-full mt-2 flex items-center justify-center gap-1 text-xs h-7"
+                        >
+                          <Info size={12} />
+                          <span>تفاصيل أكثر</span>
+                        </Button>
+                      </div>
+                    </Popup>
+                  </CircleMarker>
+                ))}
+              </MapContainer>
               
-              {/* Water Points */}
-              {filteredPoints.map((point) => (
-                <motion.div
-                  key={point.id}
-                  className={`absolute w-6 h-6 transform -translate-x-1/2 -translate-y-1/2 ${
-                    point.status === 'active' ? 'text-morocco-blue' : 
-                    point.status === 'maintenance' ? 'text-yellow-500' :
-                    'text-gray-400'
-                  }`}
-                  style={{ left: point.x, top: point.y }}
-                  initial={{ scale: 0 }}
-                  animate={{ scale: 1 }}
-                  transition={{ 
-                    type: "spring", 
-                    stiffness: 260, 
-                    damping: 20,
-                    delay: 0.5 + Math.random() * 0.5
-                  }}
-                  whileHover={{ scale: 1.2 }}
-                  onClick={() => setSelectedPoint(selectedPoint === point.id ? null : point.id)}
-                >
-                  {point.type === 'well' ? (
-                    <svg className="w-full h-full" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="1.5" fill="white" />
-                      <path d="M8 12C8 9.79086 9.79086 8 12 8C14.2091 8 16 9.79086 16 12C16 14.2091 14.2091 16 12 16C9.79086 16 8 14.2091 8 12Z" stroke="currentColor" strokeWidth="1.5" />
-                      <circle cx="12" cy="12" r="2" fill="currentColor" />
-                    </svg>
-                  ) : point.type === 'tap' ? (
-                    <svg className="w-full h-full" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" stroke="currentColor" strokeWidth="1.5" fill="white" />
-                      <path d="M12 15C10.3431 15 9 13.6569 9 12C9 10.3431 10.3431 9 12 9C13.6569 9 15 10.3431 15 12" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-                      <path d="M12 15V18" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-                    </svg>
-                  ) : (
-                    <svg className="w-full h-full" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <rect x="4" y="6" width="16" height="12" rx="2" stroke="currentColor" strokeWidth="1.5" fill="white" />
-                      <path d="M4 10H20" stroke="currentColor" strokeWidth="1.5" />
-                      <path d="M12 10V18" stroke="currentColor" strokeWidth="1.5" strokeDasharray="3 3" />
-                    </svg>
-                  )}
-                  
-                  {/* Information tooltip */}
-                  {selectedPoint === point.id && (
-                    <div className="absolute top-full left-1/2 transform -translate-x-1/2 mt-2 bg-white p-2 rounded-md shadow-lg z-10 w-48 text-gray-800 text-xs border border-morocco-blue/20">
-                      <h3 className="font-bold text-morocco-blue mb-1">{point.name}</h3>
-                      <div className="flex justify-between mb-1">
-                        <span>النوع:</span> 
-                        <span>{point.type === 'well' ? 'بئر' : point.type === 'tap' ? 'صنبور' : 'خزان'}</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span>الحالة:</span> 
-                        <span className={
-                          point.status === 'active' ? 'text-green-600' : 
-                          point.status === 'maintenance' ? 'text-yellow-600' : 
-                          'text-red-600'
-                        }>
-                          {point.status === 'active' ? 'نشط' : 
-                           point.status === 'maintenance' ? 'صيانة' : 
-                           'غير نشط'}
-                        </span>
-                      </div>
-                      <Button 
-                        variant="outline" 
-                        size="sm" 
-                        className="w-full mt-2 flex items-center justify-center gap-1 text-xs h-7"
-                      >
-                        <Info size={12} />
-                        <span>تفاصيل أكثر</span>
-                      </Button>
-                    </div>
-                  )}
-                </motion.div>
-              ))}
+              {/* Bottom decorative border */}
+              <div className="absolute bottom-0 left-0 right-0 h-2 bg-gradient-to-r from-morocco-blue via-morocco-sand to-morocco-terracotta"></div>
             </div>
             
             <div className="flex flex-wrap justify-center items-center gap-4 mt-4">
               <div className="flex items-center gap-2">
                 <div className="w-4 h-4 rounded-full bg-morocco-blue"></div>
-                <span className="text-sm text-gray-600">نقاط مياه نشطة</span>
+                <span className="text-sm text-gray-600">آبار نشطة</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-4 h-4 rounded-full bg-green-500"></div>
+                <span className="text-sm text-gray-600">صنابير نشطة</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-4 h-4 rounded-full bg-indigo-500"></div>
+                <span className="text-sm text-gray-600">خزانات نشطة</span>
               </div>
               <div className="flex items-center gap-2">
                 <div className="w-4 h-4 rounded-full bg-yellow-500"></div>
@@ -236,7 +251,7 @@ const WaterMap: React.FC<WaterMapProps> = ({ language }) => {
               </div>
               <div className="flex items-center gap-2">
                 <div className="w-4 h-4 rounded-full bg-gray-400"></div>
-                <span className="text-sm text-gray-600">نقاط مياه غير نشطة</span>
+                <span className="text-sm text-gray-600">غير نشط</span>
               </div>
             </div>
             
