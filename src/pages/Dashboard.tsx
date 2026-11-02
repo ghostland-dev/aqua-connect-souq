@@ -24,7 +24,7 @@ import {
   AlertTriangleIcon,
   CheckCircleIcon,
   SettingsIcon,
-  DropIcon 
+  Droplet 
 } from 'lucide-react';
 
 const Dashboard = () => {
@@ -53,7 +53,7 @@ const Dashboard = () => {
     { 
       title: 'نقاط المياه النشطة',
       value: '128',
-      icon: <DropIcon className="h-8 w-8 text-morocco-blue" />,
+      icon: <Droplet className="h-8 w-8 text-morocco-blue" />,
       change: '+12%',
       trend: 'up'
     },
